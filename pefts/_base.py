@@ -1,11 +1,11 @@
 import torch.nn as nn
 import bitsandbytes as bnb
-from peft import LoraConfig
+from peft import LoraConfig, PeftModel
 
 import config._base as cfg
 
 
-class PEFTConfig:
+class PEFTConfig(PeftModel):
     def __init__(self, model: nn.Module) -> None:
         self._model = model
         self._linear_modules = self.get_linear_modules()

@@ -12,7 +12,7 @@ bnb_params = {
 
 trainer_params = {
     "output_dir": "/home/mmhamdi/workspace/LLMs/TafssirAI/result",
-    "num_train_epochs": 1,
+    "num_train_epochs": 10,
     "fp16": False,
     "bf16": False,
     "train_batch_size_per_gpu": 4,
