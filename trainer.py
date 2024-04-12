@@ -6,6 +6,7 @@ import config._base as cfg
 from data._base import DataLoader
 from builder._base import Builder
 from utils._base import format_prompt, get_linear_modules
+from merge._base import Merger
 
 if __name__ == "__main__":
     response_template = "### Answer:"
@@ -65,3 +66,5 @@ if __name__ == "__main__":
     )
     trainer.train()
     trainer.model.save_pretrained(cfg.new_model_name)
+    merger = Merger(builder._baseline_model, trainer.model, builder._tokenizer)
+    merger.merge()
