@@ -60,7 +60,7 @@ if __name__ == "__main__":
         data_collator=collator,
         peft_config=peft_config,
         max_seq_length=cfg.sft_params["max_seq_length"],
-        args=cfg.trainer_params,
+        args=training_arguments,
         packing=cfg.sft_params["packing"],
     )
     trainer.train()
