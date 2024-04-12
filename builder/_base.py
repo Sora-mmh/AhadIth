@@ -10,7 +10,7 @@ class Builder:
             load_in_4bit=cfg.bnb_params["use_4bit"],
             bnb_4bit_quant_type=cfg.bnb_params["bnb_4bit_quant_type"],
             bnb_4bit_compute_dtype=getattr(
-                torch, cfg.bnb_params["bnb_4bit_quant_dtype"]
+                torch, cfg.bnb_params["bnb_4bit_compute_dtype"]
             ),
             bnb_4bit_use_double_quant=cfg.bnb_params["use_nested_quant"],
         )

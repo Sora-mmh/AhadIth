@@ -14,7 +14,7 @@ trainer_params = {
     "output_dir": "/home/mmhamdi/workspace/LLMs/TafssirAI/result",
     "num_train_epochs": 1,
     "fp16": False,
-    "bfp16": False,
+    "bf16": False,
     "train_batch_size_per_gpu": 4,
     "eval_batch_size_per_gpu": 4,
     "gradient_accumulation_steps": 1,
