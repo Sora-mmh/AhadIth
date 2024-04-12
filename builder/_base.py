@@ -20,5 +20,5 @@ class Builder:
         self._baseline_model.config.use_cache = False
         self._baseline_model.config.pretraining_tp = 1
         self._tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self._tokenizer.pad_token = self.tokenizer.eos_token
+        self._tokenizer.pad_token = self._tokenizer.eos_token
         self._tokenizer.padding_side = "right"
