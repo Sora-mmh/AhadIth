@@ -1,5 +1,7 @@
+from random import randrange
+import torch
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
-from transformers import TrainingArguments
+from transformers import TrainingArguments, AutoModelForCausalLM
 from peft import LoraConfig
 
 import config._base as cfg
@@ -7,14 +9,16 @@ from data._base import DataLoader
 from builder._base import Builder
 from utils._base import format_prompt, get_linear_modules
 from merge._base import Merger
+from inference._base import Inference
 
 if __name__ == "__main__":
     response_template = "### Answer:"
     builder = Builder()
     collator = DataCollatorForCompletionOnlyLM(
-        response_template, tokenizer=builder.tokenizer
+        response_template, tokenizer=builder._tokenizer
     )
-    dataset = DataLoader()._formatted_dataset
+    dataset = DataLoader()
+    formatted_dataset = dataset._formatted_dataset
     linear_modules = get_linear_modules(builder._baseline_model)
     if linear_modules is None:
         linear_modules = [
@@ -56,7 +60,7 @@ if __name__ == "__main__":
     )
     trainer = SFTTrainer(
         model=builder._baseline_model,
-        train_dataset=dataset,
+        train_dataset=formatted_dataset,
         formatting_func=format_prompt,
         data_collator=collator,
         peft_config=peft_config,
@@ -66,5 +70,16 @@ if __name__ == "__main__":
     )
     trainer.train()
     trainer.model.save_pretrained(cfg.new_model_name)
-    merger = Merger(builder._baseline_model, trainer.model, builder._tokenizer)
+    baseline_model = AutoModelForCausalLM.from_pretrained(
+        cfg.model_name,
+        low_cpu_mem_usage=True,
+        torch_dtype=torch.float16,
+        device_map=cfg.device_map,
+    )
+    merger = Merger(baseline_model, cfg.new_model_name, builder._tokenizer)
     merger.merge()
+    merged_model_name = merger._merged_model_name
+    del merger
+    torch.cuda.empty_cache()
+    inference = Inference(merged_model_name)
+    inference.test(dataset[randrange(len(dataset))])
