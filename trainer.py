@@ -1,11 +1,11 @@
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
-from transformers import BitsAndBytesConfig, TrainingArguments, logging
+from transformers import TrainingArguments
+from peft import LoraConfig
 
 import config._base as cfg
 from data._base import DataLoader
 from builder._base import Builder
-from peft._base import PEFTConfig
-from data._base import format_prompt
+from utils._base import format_prompt, get_linear_modules
 
 if __name__ == "__main__":
     response_template = "### Answer:"
@@ -14,7 +14,25 @@ if __name__ == "__main__":
         response_template, tokenizer=builder.tokenizer
     )
     dataset = DataLoader()._formatted_dataset
-    peft_config = PEFTConfig(builder._baseline_model)
+    linear_modules = get_linear_modules(builder._baseline_model)
+    if linear_modules is None:
+        linear_modules = [
+            "q_proj",
+            "k_proj",
+            "down_proj",
+            "gate_proj",
+            "o_proj",
+            "v_proj",
+            "up_proj",
+        ]
+    peft_config = LoraConfig(
+        lora_alpha=cfg.lora_params["lora_alpha"],
+        lora_dropout=cfg.lora_params["lora_dropout"],
+        r=cfg.lora_params["lora_r"],
+        target_modules=linear_modules,
+        bias="none",
+        task_type="CAUSAL_LM",
+    )
     training_arguments = TrainingArguments(
         output_dir=cfg.trainer_params["output_dir"],
         num_train_epochs=cfg.trainer_params["num_train_epochs"],
@@ -31,7 +49,7 @@ if __name__ == "__main__":
         bf16=cfg.trainer_params["bf16"],
         max_grad_norm=cfg.trainer_params["max_grad_norm"],
         max_steps=cfg.trainer_params["max_steps"],
-        warmup_ratio=cfg.trainer_params["warmpu_ratio"],
+        warmup_ratio=cfg.trainer_params["warmup_ratio"],
         group_by_length=cfg.trainer_params["group_by_length"],
         lr_scheduler_type=cfg.trainer_params["lr_scheduler_type"],
     )
