@@ -82,4 +82,4 @@ if __name__ == "__main__":
     del merger
     torch.cuda.empty_cache()
     inference = Inference(merged_model_name)
-    inference.test(dataset[randrange(len(dataset))])
+    inference.test(dataset._dataset[randrange(len(dataset._dataset))])
