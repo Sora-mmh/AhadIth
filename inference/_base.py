@@ -34,4 +34,5 @@ class Inference:
                 ],
                 skip_special_tokens=False,
             )
-        logging.info(f"The prompt followed by its completion : \n {completed_answer}")
+        return completed_answer
+        # logging.info(f"The prompt followed by its completion : \n {completed_answer}")

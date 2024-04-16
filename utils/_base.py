@@ -5,6 +5,19 @@ from peft import LoraConfig, PeftModel
 import config._base as cfg
 
 
+def generate_response(pipe, prompt):
+    sequences = pipe(
+        f"<s>[INST] {prompt} [/INST]",
+        do_sample=True,
+        max_new_tokens=200,
+        temperature=0.7,
+        top_k=50,
+        top_p=0.95,
+        num_return_sequences=1,
+    )
+    return sequences[0]["generated_text"]
+
+
 # databricks/databricks-dolly-15k dataset
 def create_prompt(sample):
     bos_token, eos_token = "<s>", "</s>"
