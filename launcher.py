@@ -119,8 +119,14 @@ if __name__ == "__main__":
         pipe = pipeline(
             "text-generation", model=inference._model_name, device_map="auto"
         )
-        prompt = "tell me about the main pillars of islam ?"
-        print(generate_response(pipe, prompt))
+        prompts = [
+            "tell me about the main pillars of islam ?",
+            "Can you explain the pilgrim in Islam ?",
+            "Can you detail the Prophet Mohamed relatives ?",
+            "What's the wishlist of the prophet Mohamed before dying ?",
+        ]
+        for prompt in prompts:
+            print(generate_response(pipe, prompt))
         # Streamlit app
         if args.stream:
             st.set_page_config(
