@@ -1,3 +1,4 @@
+import argparse
 import logging
 from pathlib import Path
 import torch
@@ -16,18 +17,37 @@ from inference._base import Inference
 logging.basicConfig(level=logging.INFO)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--train", type=bool, default=False, help="launch finetuning")
+    parser.add_argument(
+        "--inference",
+        type=bool,
+        default=True,
+        help="launch inference with some predefined prompts",
+    )
+    parser.add_argument(
+        "--stream",
+        type=bool,
+        default=False,
+        help="run on streamlit application, OOM issues !!",
+    )
+    parser.add_argument(
+        "--path",
+        type=Path,
+        default=Path(
+            "/home/mmhamdi/workspace/LLMs/TafssirAI/datasets/10k_hadiths_with_prompts.csv"
+        ),
+        help="the path of the downstream task dataset",
+    )
+    args = parser.parse_args()
     response_template = "### Answer:"
     builder = Builder()
     collator = DataCollatorForCompletionOnlyLM(
         response_template, tokenizer=builder._tokenizer
     )
-    dataset = DataLoader(
-        Path(
-            "/home/mmhamdi/workspace/LLMs/TafssirAI/datasets/10k_hadiths_with_prompts.csv"
-        )
-    )
-    TRAIN, INFERENCE = True, False
-    if TRAIN:
+    dataset = DataLoader(args.path)
+    # TRAIN, INFERENCE, STREAM = False, True, False
+    if args.train:
         formatted_dataset = dataset._formatted_dataset
         linear_modules = get_linear_modules(builder._baseline_model)
         if linear_modules is None:
@@ -94,33 +114,36 @@ if __name__ == "__main__":
         del merger
         torch.cuda.empty_cache()
 
-    if INFERENCE:
+    if args.inference:
         inference = Inference(model_name="merged_finetuned_mistral")
         pipe = pipeline(
             "text-generation", model=inference._model_name, device_map="auto"
         )
+        prompt = "tell me about the main pillars of islam ?"
+        print(generate_response(pipe, prompt))
         # Streamlit app
-        st.set_page_config(
-            page_title="Generate Explanations",
-            layout="centered",
-            initial_sidebar_state="collapsed",
-        )
-        st.header("Tafssir Bot")
-        if "messages" not in st.session_state.keys():
-            st.session_state.messages = [
-                {"role": "assistant", "content": "How may I help you?"}
-            ]
-        for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.write(message["content"])
-        if prompt := st.chat_input():
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"):
-                st.write(prompt)
-        if st.session_state.messages[-1]["role"] != "assistant":
-            with st.chat_message("assistant"):
-                with st.spinner("Thinking..."):
-                    response = generate_response(pipe, prompt)
-                    st.write_stream(response)
-            message = {"role": "assistant", "content": response}
-            st.session_state.messages.append(message)
+        if args.stream:
+            st.set_page_config(
+                page_title="Generate Explanations",
+                layout="centered",
+                initial_sidebar_state="collapsed",
+            )
+            st.header("Tafssir Bot")
+            if "messages" not in st.session_state.keys():
+                st.session_state.messages = [
+                    {"role": "assistant", "content": "How may I help you?"}
+                ]
+            for message in st.session_state.messages:
+                with st.chat_message(message["role"]):
+                    st.write(message["content"])
+            if prompt := st.chat_input():
+                st.session_state.messages.append({"role": "user", "content": prompt})
+                with st.chat_message("user"):
+                    st.write(prompt)
+            if st.session_state.messages[-1]["role"] != "assistant":
+                with st.chat_message("assistant"):
+                    with st.spinner("Thinking..."):
+                        response = generate_response(pipe, prompt)
+                        st.write_stream(response)
+                message = {"role": "assistant", "content": response}
+                st.session_state.messages.append(message)
