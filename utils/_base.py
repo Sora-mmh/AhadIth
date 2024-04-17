@@ -18,17 +18,15 @@ def generate_response(pipe, prompt):
     return sequences[0]["generated_text"]
 
 
-# databricks/databricks-dolly-15k dataset
 def create_prompt(sample):
     bos_token, eos_token = "<s>", "</s>"
-    instruction, context, response_row = (
-        sample["instruction"],
-        sample["context"],
+    question, response = (
+        sample["question"],
         sample["response"],
     )
-    text_row = f"""[INST] Below is the question based on the context. Question: {instruction}. Below is the given the context {context}. Write a response that appropriately completes the request.[/INST]"""
+    text_row = f"""[INST] Below is the question based on the context. Question: {question}. Write a response that appropriately answeres the question.[/INST]"""
     sample["prompt"] = bos_token + text_row
-    sample["completion"] = response_row + eos_token
+    sample["completion"] = response + eos_token
     return sample
 
 

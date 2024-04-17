@@ -1,6 +1,5 @@
 import logging
-import os
-import signal
+from pathlib import Path
 import torch
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from transformers import TrainingArguments, AutoModelForCausalLM, pipeline
@@ -22,8 +21,12 @@ if __name__ == "__main__":
     collator = DataCollatorForCompletionOnlyLM(
         response_template, tokenizer=builder._tokenizer
     )
-    dataset = DataLoader()
-    TRAIN, INFERENCE = False, True
+    dataset = DataLoader(
+        Path(
+            "/home/mmhamdi/workspace/LLMs/TafssirAI/datasets/10k_hadiths_with_prompts.csv"
+        )
+    )
+    TRAIN, INFERENCE = True, False
     if TRAIN:
         formatted_dataset = dataset._formatted_dataset
         linear_modules = get_linear_modules(builder._baseline_model)
