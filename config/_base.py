@@ -12,7 +12,7 @@ bnb_params = {
 
 trainer_params = {
     "output_dir": "/home/mmhamdi/workspace/LLMs/TafssirAI/result",
-    "num_train_epochs": 1,
+    "num_train_epochs": 20,
     "fp16": False,
     "bf16": False,
     "train_batch_size_per_gpu": 4,
@@ -24,7 +24,7 @@ trainer_params = {
     "weight_decay": 0.001,
     "optim": "paged_adamw_32bit",
     "lr_scheduler_type": "constant",
-    "max_steps": -1,
+    "max_steps": -1, 
     "warmup_ratio": 0.03,
     "group_by_length": True,
     "save_steps": 25,
