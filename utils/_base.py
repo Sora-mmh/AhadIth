@@ -33,7 +33,6 @@ def create_prompt(sample):
 def format_prompt(sample):
     output_texts = []
     for idx in range(len(sample["prompt"])):
-        # text = f"{sample["prompt"][idx]}\n\n ### Answer: {sample["completion"][idx]}"
         text = "{} \n\n ###Answer: {}".format(
             sample["prompt"][idx], sample["completion"][idx]
         )
